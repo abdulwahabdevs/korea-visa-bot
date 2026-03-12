@@ -221,8 +221,8 @@ Bot:      📷 [Sends MRZ guide photo]
           Enter your passport number (e.g. FA4166021)
 Student:  FA4166021
 Bot:      Enter your full name exactly as in passport
-          (e.g. KODIROV MUKHAMMADSODIK)
-Student:  KODIROV MUKHAMMADSODIK
+          (e.g. SURNAME GIVEN NAME FATHER'S NAME)
+Student:  SOMEONOV SOMEONE SOMEONE'S SON/DAUGHTER
 Bot:      Enter date of birth (YYYYMMDD)
           (e.g. 19981217)
 Student:  19981217
@@ -269,8 +269,8 @@ Bot:    🔍 Checking... ✅ Result displayed
 
 # Diplomatic selected:
 Bot:    Enter: <passport> <full_name> <DOB_YYYYMMDD>
-        Example: FA4166021 KODIROV MUKHAMMADSODIK 19981217
-Admin:  FA4166021 KODIROV MUKHAMMADSODIK 19981217
+        Example: FB1234567 SOMEONOV SOMEONE SOMEONE'S SON 19981217
+Admin:  FB1234567 SOMEONOV SOMEONE SOMEONE'S SON 19981217
 Bot:    🔍 Checking... ✅ Result displayed
 ```
 
@@ -302,7 +302,7 @@ Bot:    🔍 Checking... ✅ Result displayed
 | Column A | Column B | Column C |
 |----------|----------|----------|
 | Passport Number | Full Name | DOB (YYYYMMDD) |
-| FA4166021 | KODIROV MUKHAMMADSODIK | 19981217 |
+| FB1234567 | SOMEONOV SOMEONE SOMEONE'S SON | 19981217 |
 
 > The bot uses smart header detection — column names don't need to be exact. It searches for keywords like "receipt", "passport", "name", "birth".
 
@@ -392,7 +392,7 @@ git push -u origin main
 |-------|--------|---------|-------|
 | Passport No. | 2 letters + 7 digits | `FA4166021` | `^[A-Z]{2}[0-9]{7}$` |
 | Receipt No. | 10 digits | `5677400001` | `^[0-9]{10}$` |
-| Full Name | Uppercase letters + spaces | `KODIROV MUKHAMMADSODIK` | `^[A-Z\s]{2,}$` |
+| Full Name | Uppercase letters + spaces | `SOMEONOV SOMEONE SOMEONE'S SON` | `^[A-Z\s]{2,}$` |
 | DOB | YYYYMMDD | `19981217` | `^[0-9]{8}$` |
 
 ---
