@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Environment variables (NEVER commit this)
+.env
+
+# Database & runtime data
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/input_*.xlsx
+data/output/
+data/screenshots/
+data/certs/
+
+# Assets (passport guide image) are tracked — do NOT ignore assets/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.zip
