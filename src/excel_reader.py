@@ -185,21 +185,28 @@ def _validate_dob(value: str) -> list:
 
 def _detect_headers(ws) -> tuple:
     """
-    Scan first 5 rows to find the header row.
-    Returns (col_map, header_row_idx) or ({}, None).
+    Scan first 10 rows to find the header row.
+    Handles files where data starts from any column (A, B, C…).
+    Returns (col_map, header_row_idx) where col_map values are
+    0-based indices into each row tuple.
     """
     col_map: dict = {}
     header_row_idx = None
-    for row_idx, row in enumerate(ws.iter_rows(min_row=1, max_row=5, values_only=True)):
+
+    for row_idx, row in enumerate(ws.iter_rows(min_row=1, max_row=10, values_only=True)):
+        candidate: dict = {}
         for col_idx, cell in enumerate(row):
             if cell is None:
                 continue
             fk = _match_header(cell)
-            if fk and fk not in col_map:
-                col_map[fk] = col_idx
-        if len(col_map) >= 2:
+            if fk and fk not in candidate:
+                candidate[fk] = col_idx
+        # Accept this row as the header if it contains at least 2 known fields
+        if len(candidate) >= 2:
+            col_map = candidate
             header_row_idx = row_idx
             break
+
     return col_map, header_row_idx
 
 
