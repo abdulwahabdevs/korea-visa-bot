@@ -314,7 +314,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
         await update.message.reply_html(t("checkall_upload", lang))
         return AWAIT_EXCEL
     if not doc.file_name.endswith((".xlsx", ".xls")):
-        await update.message.reply_html("❌ Faqat <b>.xlsx</b> fayl qabul qilinadi.", parse_mode="HTML")
+        await update.message.reply_html("❌ Faqat <b>.xlsx</b> fayl qabul qilinadi.")
         return AWAIT_EXCEL
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -334,8 +334,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
         try: await ack_msg.delete()
         except Exception: pass
         await update.message.reply_html(
-            f"❌ <b>Excel fayl xatosi:</b>\n<code>{e}</code>",
-            parse_mode="HTML"
+            f"❌ <b>Excel fayl xatosi:</b>\n<code>{e}</code>"
         )
         tmp.unlink(missing_ok=True)
         return AWAIT_EXCEL
@@ -389,8 +388,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
                     "• <b>여권번호</b> yoki <b>passport</b> (majburiy)\n"
                     "• <b>성명</b> yoki <b>name</b> (majburiy)\n"
                     "• <b>생년월일</b> yoki <b>dob</b> (majburiy)\n\n"
-                    "Ariza raqami (receipt) <i>shart emas</i>.",
-                    parse_mode="HTML"
+                    "Ariza raqami (receipt) <i>shart emas</i>."
                 )
             else:
                 await update.message.reply_html("❌ Faylda talaba topilmadi.")
@@ -572,8 +570,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
                 f"⚠️ <b>Tekshiruv to'xtatildi.</b> {len(completed)}/{total} natija saqlandi.\n"
                 f"<code>{str(_bulk_err)[:200]}</code>\n\n"
                 f"• /export — qisman natijalarni yuklab olish\n"
-                f"• /retryerrors — xato qatorlarni qayta tekshirish",
-                parse_mode="HTML"
+                f"• /retryerrors — xato qatorlarni qayta tekshirish"
             )
             with open(partial_path, "rb") as f:
                 await update.message.reply_document(
@@ -582,8 +579,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
                 )
         else:
             await update.message.reply_html(
-                f"❌ <b>Tekshiruv xatosi:</b>\n<code>{_bulk_err}</code>",
-                parse_mode="HTML"
+                f"❌ <b>Tekshiruv xatosi:</b>\n<code>{_bulk_err}</code>"
             )
         tmp.unlink(missing_ok=True)
         ctx.user_data.clear()
@@ -683,8 +679,7 @@ async def retryerrors_cmd(update: Update, ctx: ContextTypes) -> None:
     total = len(error_rows)
     await update.message.reply_html(
         f"🔄 <b>{total} ta xato qator qayta tekshirilmoqda…</b>\n"
-        f"Sessiya: <code>{session_key}</code>",
-        parse_mode="HTML"
+        f"Sessiya: <code>{session_key}</code>"
     )
 
     pool = get_pool()
