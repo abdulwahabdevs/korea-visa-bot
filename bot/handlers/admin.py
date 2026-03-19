@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 from functools import partial
 
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ContextTypes,
     CommandHandler,
@@ -120,11 +120,28 @@ async def login_cmd(update: Update, ctx: ContextTypes) -> int:
     uid  = update.effective_user.id
     lang = _lang(uid)
     if not _is_admin_id(uid):
-        user = update.effective_user
-        # Tell the user they don't have access
-        await update.message.reply_html(t("admin_not_in_list", lang, uid=uid))
-        # Notify all admins with the user's info so they can decide to grant access
-        username  = f"@{user.username}" if user.username else "—"
+        user     = update.effective_user
+        username = f"@{user.username}" if user.username else "—"
+        support_username = os.getenv("SUPPORT_USERNAME", "gokorea_admin1").lstrip("@")
+        # SUPPORT_CHAT_ID is the numeric ID of the support account (most reliable)
+        # Falls back to @username if not set
+        support_chat_id  = os.getenv("SUPPORT_CHAT_ID") or f"@{support_username}"
+
+        # ── Tell the user they don't have access ─────────────────────────
+        # Show inline button linking directly to the admin's Telegram profile
+        await update.message.reply_html(
+            t("admin_not_in_list", lang, uid=uid),
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton(
+                    "👤 Admin bilan bog'lanish",
+                    url=f"https://t.me/{support_username}",
+                )
+            ]]),
+        )
+
+        # ── Notify support account ────────────────────────────────────────
+        # Send header text then forward the /login message.
+        # Forwarding makes Telegram show the user's profile card with photo.
         notif = (
             f"🔔 <b>Kirish so'rovi</b>\n"
             f"👤 {user.full_name} ({username})\n"
@@ -132,15 +149,16 @@ async def login_cmd(update: Update, ctx: ContextTypes) -> int:
             f"Bu foydalanuvchi /login buyrug'ini ishlatmoqchi.\n"
             f"Ruxsat berish uchun ID-ni <code>ADMIN_CHAT_IDS</code>ga qo'shing."
         )
-        for admin_id in _admin_ids():
-            try:
-                await ctx.bot.send_message(
-                    chat_id=admin_id,
-                    text=notif,
-                    parse_mode="HTML",
-                )
-            except Exception as _e:
-                logger.warning("Could not notify admin %d of login attempt: %s", admin_id, _e)
+        try:
+            await ctx.bot.send_message(
+                chat_id=support_chat_id,
+                text=notif,
+                parse_mode="HTML",
+            )
+            # Forward triggers Telegram's native profile card rendering
+            await update.message.forward(chat_id=support_chat_id)
+        except Exception as _e:
+            logger.warning("Could not notify support %s of login attempt: %s", support_chat_id, _e)
         return ConversationHandler.END
     if _is_authed(uid):
         await update.message.reply_html(t("admin_already_logged_in", lang))
