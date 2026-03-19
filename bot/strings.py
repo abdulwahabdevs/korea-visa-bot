@@ -158,21 +158,21 @@ STRINGS: dict[str, dict[str, str]] = {
         "uz": (
             "👤 <b>To'liq ismingizni kiriting</b> (pasportdagidek)\n\n"
             "Format: <code>FAMILIYA ISMI OTASINING_ISMI UGLI/QIZI</code>\n"
-            "Misol: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>\n\n"
+            "Misol: <code>YUSUPOV JASURBEK SALIM UGLI</code>\n\n"
             "⚠️ O'zbek pasportida <b>otasining ismi</b> ham yoziladi (UGLI yoki QIZI).\n"
             "⚠️ Faqat KATTA LOTIN harflar, pasportdagi tartibda."
         ),
         "en": (
             "👤 <b>Enter your full name</b> (exactly as in passport)\n\n"
             "Format: <code>SURNAME GIVENNAME FATHERSNAME UGLI/QIZI</code>\n"
-            "Example: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>\n\n"
+            "Example: <code>YUSUPOV JASURBEK SALIM UGLI</code>\n\n"
             "⚠️ Uzbek passports include the <b>father's name</b> (UGLI for male, QIZI for female).\n"
             "⚠️ UPPERCASE Latin letters only, exactly as printed in your passport."
         ),
         "ru": (
             "👤 <b>Введите полное имя</b> (как в паспорте)\n\n"
             "Формат: <code>ФАМИЛИЯ ИМЯ ОТЧЕСТВО UGLI/QIZI</code>\n"
-            "Пример: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>\n\n"
+            "Пример: <code>YUSUPOV JASURBEK SALIM UGLI</code>\n\n"
             "⚠️ В узбекском паспорте указывается <b>отчество</b> (UGLI — муж., QIZI — жен.).\n"
             "⚠️ Только ЗАГЛАВНЫЕ латинские буквы, как в паспорте."
         ),
@@ -337,19 +337,19 @@ STRINGS: dict[str, dict[str, str]] = {
             "❌ Noto'g'ri ism.\n"
             "Faqat KATTA LOTIN harflar, pasportdagidek.\n"
             "O'zbek pasportida: <b>FAMILIYA ISMI OTASINING_ISMI UGLI/QIZI</b>\n"
-            "✅ Misol: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>"
+            "✅ Misol: <code>YUSUPOV JASURBEK SALIM UGLI</code>"
         ),
         "en": (
             "❌ Invalid name.\n"
             "UPPERCASE Latin letters only, exactly as in passport.\n"
             "For Uzbek passports include father's name: <b>SURNAME NAME FATHERSNAME UGLI/QIZI</b>\n"
-            "✅ Example: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>"
+            "✅ Example: <code>YUSUPOV JASURBEK SALIM UGLI</code>"
         ),
         "ru": (
             "❌ Неверное имя.\n"
             "Только ЗАГЛАВНЫЕ латинские буквы, как в паспорте.\n"
             "Для узбекских паспортов: <b>ФАМИЛИЯ ИМЯ ОТЧЕСТВО UGLI/QIZI</b>\n"
-            "✅ Пример: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>"
+            "✅ Пример: <code>YUSUPOV JASURBEK SALIM UGLI</code>"
         ),
     },
     "err_dob_format": {
@@ -417,7 +417,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "Ikkinchi qatorning <b>dastlabki 9 belgisi</b> — pasport raqamingiz.\n"
             "Misol: <code>AB1234567</code>\n\n"
             "<b>To'liq ism</b> — pasportdagi inglizcha yozuv (familiya + ism + otasining ismi + UGLI/QIZI).\n"
-            "Misol: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>\n\n"
+            "Misol: <code>YUSUPOV JASURBEK SALIM UGLI</code>\n\n"
             "<b>Tug'ilgan sana</b> — format <code>YYYYMMDD</code>.\n"
             "Misol: <code>20010315</code>"
         ),
@@ -427,7 +427,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "The <b>first 9 characters</b> of line 2 are your passport number.\n"
             "Example: <code>AB1234567</code>\n\n"
             "<b>Full name</b> — as printed in your passport (surname + given name + father's name + UGLI/QIZI).\n"
-            "Example: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>\n\n"
+            "Example: <code>YUSUPOV JASURBEK SALIM UGLI</code>\n\n"
             "<b>Date of birth</b> — format <code>YYYYMMDD</code>.\n"
             "Example: <code>20010315</code>"
         ),
@@ -437,7 +437,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "Первые <b>9 символов</b> второй строки — это ваш номер паспорта.\n"
             "Пример: <code>AB1234567</code>\n\n"
             "<b>Полное имя</b> — как в паспорте: фамилия + имя + отчество + UGLI/QIZI.\n"
-            "Пример: <code>FALONCHIYEV FALONCHI FALONCHI UGLI</code>\n\n"
+            "Пример: <code>YUSUPOV JASURBEK SALIM UGLI</code>\n\n"
             "<b>Дата рождения</b> — формат <code>YYYYMMDD</code>.\n"
             "Пример: <code>20010315</code>"
         ),
@@ -475,9 +475,21 @@ STRINGS: dict[str, dict[str, str]] = {
         "ru": "🚫 Только для администраторов. Сначала /login.",
     },
     "admin_not_in_list": {
-        "uz": "🚫 Sizning ID admin ro'yxatida yo'q.",
-        "en": "🚫 Your ID is not in the admin list.",
-        "ru": "🚫 Ваш ID не в списке администраторов.",
+        "uz": (
+            "🚫 <b>Sizda kirish huquqi yo'q.</b>\n\n"
+            f"Sizning ID: <code>{{uid}}</code>\n"
+            "Ruxsat olish uchun admin bilan bog'laning."
+        ),
+        "en": (
+            "🚫 <b>You are not allowed to use this bot.</b>\n\n"
+            f"Your user ID: <code>{{uid}}</code>\n"
+            "Please contact the admin to get access."
+        ),
+        "ru": (
+            "🚫 <b>У вас нет доступа к этому боту.</b>\n\n"
+            f"Ваш ID: <code>{{uid}}</code>\n"
+            "Обратитесь к администратору для получения доступа."
+        ),
     },
 
     # ── Admin: /check ─────────────────────────────────────────────────────
@@ -486,7 +498,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "E-Viza tekshirish uchun 4 ta ma'lumot kiriting:\n"
             "<code>ARIZA_RAQAMI PASPORT TOLIQQSIM TUGULGAN_SANA</code>\n\n"
             "Misol:\n"
-            "<code>1234500001 AB1234567 FALONCHIYEV FALONCHI FALONCHI UGLI 20010315</code>\n\n"
+            "<code>1234500001 AB1234567 YUSUPOV JASURBEK SALIM UGLI 20010315</code>\n\n"
             "📌 Ism: pasportdagidek KATTA harflarda (familiya + ism + otasining ismi + UGLI/QIZI)\n"
             "📌 Sana: YYYYMMDD formatida (masalan: 20010315)"
         ),
@@ -494,7 +506,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "E-Visa check requires 4 fields:\n"
             "<code>RECEIPT PASSPORT FULLNAME DOB</code>\n\n"
             "Example:\n"
-            "<code>1234500001 AB1234567 FALONCHIYEV FALONCHI FALONCHI UGLI 20010315</code>\n\n"
+            "<code>1234500001 AB1234567 YUSUPOV JASURBEK SALIM UGLI 20010315</code>\n\n"
             "📌 Name: UPPERCASE as on passport — include father's name (UGLI/QIZI for Uzbek passports)\n"
             "📌 DOB: YYYYMMDD format (e.g. 20010315)"
         ),
@@ -502,15 +514,15 @@ STRINGS: dict[str, dict[str, str]] = {
             "Для проверки E-Visы нужны 4 поля:\n"
             "<code>НОМЕР_ЗАЯВКИ ПАСПОРТ ПОЛНОЕ_ИМЯ ДАТА_РОЖДЕНИЯ</code>\n\n"
             "Пример:\n"
-            "<code>1234500001 AB1234567 FALONCHIYEV FALONCHI FALONCHI UGLI 20010315</code>\n\n"
+            "<code>1234500001 AB1234567 YUSUPOV JASURBEK SALIM UGLI 20010315</code>\n\n"
             "📌 Имя: ЗАГЛАВНЫМИ буквами как в паспорте (включая отчество UGLI/QIZI)\n"
             "📌 Дата: формат YYYYMMDD (напр. 20010315)"
         ),
     },
     "admin_check_usage_diplomatic": {
-        "uz": "Foydalanish: /check <code>PASSPORT NAME DOB</code>\nMisol: /check AB1234567 \"FALONCHIYEV FALONCHI FALONCHI UGLI\" 20010315",
-        "en": "Usage: /check <code>PASSPORT NAME DOB</code>\nExample: /check AB1234567 \"FALONCHIYEV FALONCHI FALONCHI UGLI\" 20010315",
-        "ru": "Использование: /check <code>PASSPORT NAME DOB</code>\nПример: /check AB1234567 \"FALONCHIYEV FALONCHI FALONCHI UGLI\" 20010315",
+        "uz": "Foydalanish: /check <code>PASSPORT NAME DOB</code>\nMisol: /check AB1234567 \"YUSUPOV JASURBEK SALIM UGLI\" 20010315",
+        "en": "Usage: /check <code>PASSPORT NAME DOB</code>\nExample: /check AB1234567 \"YUSUPOV JASURBEK SALIM UGLI\" 20010315",
+        "ru": "Использование: /check <code>PASSPORT NAME DOB</code>\nПример: /check AB1234567 \"YUSUPOV JASURBEK SALIM UGLI\" 20010315",
     },
 
     # ── Admin: /checkall ──────────────────────────────────────────────────
@@ -712,6 +724,23 @@ STATUS_EMOJI: dict[str, str] = {
         "uz": "📄 Viza tasdiqlanishi haqida ma'lumotnoma (비자발급확인서)",
         "en": "📄 Visa Approval Certificate (비자발급확인서)",
         "ru": "📄 Справка о выдаче визы (비자발급확인서)",
+    },
+
+    # ── Feedback ──────────────────────────────────────────────────────────────
+    "feedback_prompt": {
+        "uz": "📩 <b>Muammo bildirish</b>\n\nXatolik yoki muammo haqida yozing yoki screenshot yuboring.\nAdminlar tez orada ko'rib chiqadi.\n\n❌ Bekor qilish uchun /cancel",
+        "en": "📩 <b>Report an Issue</b>\n\nDescribe your problem or send a screenshot.\nOur admins will review it shortly.\n\n❌ Type /cancel to cancel",
+        "ru": "📩 <b>Сообщить о проблеме</b>\n\nОпишите проблему или отправьте скриншот.\nАдминистраторы рассмотрят ваше обращение.\n\n❌ /cancel для отмены",
+    },
+    "feedback_sent": {
+        "uz": "✅ Muammongiz adminga yuborildi. Tez orada ko'rib chiqiladi.",
+        "en": "✅ Your report has been sent to the admins. We will review it shortly.",
+        "ru": "✅ Ваше сообщение отправлено администраторам. Мы рассмотрим его в ближайшее время.",
+    },
+    "feedback_empty": {
+        "uz": "⚠️ Iltimos, muammo haqida matn yozing yoki screenshot yuboring.",
+        "en": "⚠️ Please send a text message or a screenshot describing your issue.",
+        "ru": "⚠️ Пожалуйста, напишите текст или отправьте скриншот с описанием проблемы.",
     },
 
 }

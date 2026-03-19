@@ -8,13 +8,13 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 
 def main_menu_keyboard(lang: str = "uz") -> ReplyKeyboardMarkup:
     labels = {
-        "uz": ["📋 Viza Holatimni Tekshirish", "📖 Qo'llanma", "ℹ️ Yordam"],
-        "en": ["📋 Check My Visa Status",       "📖 Guide",     "ℹ️ Help"],
-        "ru": ["📋 Проверить статус визы",       "📖 Инструкция","ℹ️ Помощь"],
+        "uz": ["📋 Viza Holatimni Tekshirish", "📖 Qo'llanma", "ℹ️ Yordam", "📩 Muammo bildirish"],
+        "en": ["📋 Check My Visa Status",       "📖 Guide",     "ℹ️ Help",   "📩 Report an Issue"],
+        "ru": ["📋 Проверить статус визы",       "📖 Инструкция","ℹ️ Помощь","📩 Сообщить о проблеме"],
     }
     btns = labels.get(lang, labels["uz"])
     return ReplyKeyboardMarkup(
-        [[btns[0]], [btns[1], btns[2]]],
+        [[btns[0]], [btns[1], btns[2]], [btns[3]]],
         resize_keyboard=True,
         one_time_keyboard=False,
     )
@@ -62,4 +62,3 @@ def cert_download_keyboard(lang: str = "uz") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([[
         InlineKeyboardButton(label, callback_data="cert_dl"),
     ]])
-

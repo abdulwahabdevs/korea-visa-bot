@@ -120,7 +120,27 @@ async def login_cmd(update: Update, ctx: ContextTypes) -> int:
     uid  = update.effective_user.id
     lang = _lang(uid)
     if not _is_admin_id(uid):
-        await update.message.reply_html(t("admin_not_in_list", lang))
+        user = update.effective_user
+        # Tell the user they don't have access
+        await update.message.reply_html(t("admin_not_in_list", lang, uid=uid))
+        # Notify all admins with the user's info so they can decide to grant access
+        username  = f"@{user.username}" if user.username else "—"
+        notif = (
+            f"🔔 <b>Kirish so'rovi</b>\n"
+            f"👤 {user.full_name} ({username})\n"
+            f"🆔 <code>{user.id}</code>\n\n"
+            f"Bu foydalanuvchi /login buyrug'ini ishlatmoqchi.\n"
+            f"Ruxsat berish uchun ID-ni <code>ADMIN_CHAT_IDS</code>ga qo'shing."
+        )
+        for admin_id in _admin_ids():
+            try:
+                await ctx.bot.send_message(
+                    chat_id=admin_id,
+                    text=notif,
+                    parse_mode="HTML",
+                )
+            except Exception as _e:
+                logger.warning("Could not notify admin %d of login attempt: %s", admin_id, _e)
         return ConversationHandler.END
     if _is_authed(uid):
         await update.message.reply_html(t("admin_already_logged_in", lang))
@@ -138,6 +158,8 @@ async def receive_password(update: Update, ctx: ContextTypes) -> int:
         return ConversationHandler.END
     correct = _admin_password()
     if correct and text == correct:
+        # Ensure the user row exists before touching admin_sessions (FK constraint).
+        # Admins who never sent a regular message won't be in the users table yet.
         upsert_user(uid,
                     update.effective_user.username or "",
                     update.effective_user.full_name or "")
@@ -314,7 +336,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
         await update.message.reply_html(t("checkall_upload", lang))
         return AWAIT_EXCEL
     if not doc.file_name.endswith((".xlsx", ".xls")):
-        await update.message.reply_html("❌ Faqat <b>.xlsx</b> fayl qabul qilinadi.")
+        await update.message.reply_html("❌ Faqat <b>.xlsx</b> fayl qabul qilinadi.", parse_mode="HTML")
         return AWAIT_EXCEL
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -334,7 +356,8 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
         try: await ack_msg.delete()
         except Exception: pass
         await update.message.reply_html(
-            f"❌ <b>Excel fayl xatosi:</b>\n<code>{e}</code>"
+            f"❌ <b>Excel fayl xatosi:</b>\n<code>{e}</code>",
+            parse_mode="HTML"
         )
         tmp.unlink(missing_ok=True)
         return AWAIT_EXCEL
@@ -388,7 +411,8 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
                     "• <b>여권번호</b> yoki <b>passport</b> (majburiy)\n"
                     "• <b>성명</b> yoki <b>name</b> (majburiy)\n"
                     "• <b>생년월일</b> yoki <b>dob</b> (majburiy)\n\n"
-                    "Ariza raqami (receipt) <i>shart emas</i>."
+                    "Ariza raqami (receipt) <i>shart emas</i>.",
+                    parse_mode="HTML"
                 )
             else:
                 await update.message.reply_html("❌ Faylda talaba topilmadi.")
@@ -570,7 +594,8 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
                 f"⚠️ <b>Tekshiruv to'xtatildi.</b> {len(completed)}/{total} natija saqlandi.\n"
                 f"<code>{str(_bulk_err)[:200]}</code>\n\n"
                 f"• /export — qisman natijalarni yuklab olish\n"
-                f"• /retryerrors — xato qatorlarni qayta tekshirish"
+                f"• /retryerrors — xato qatorlarni qayta tekshirish",
+                parse_mode="HTML"
             )
             with open(partial_path, "rb") as f:
                 await update.message.reply_document(
@@ -579,7 +604,8 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
                 )
         else:
             await update.message.reply_html(
-                f"❌ <b>Tekshiruv xatosi:</b>\n<code>{_bulk_err}</code>"
+                f"❌ <b>Tekshiruv xatosi:</b>\n<code>{_bulk_err}</code>",
+                parse_mode="HTML"
             )
         tmp.unlink(missing_ok=True)
         ctx.user_data.clear()
@@ -679,7 +705,8 @@ async def retryerrors_cmd(update: Update, ctx: ContextTypes) -> None:
     total = len(error_rows)
     await update.message.reply_html(
         f"🔄 <b>{total} ta xato qator qayta tekshirilmoqda…</b>\n"
-        f"Sessiya: <code>{session_key}</code>"
+        f"Sessiya: <code>{session_key}</code>",
+        parse_mode="HTML"
     )
 
     pool = get_pool()
