@@ -128,13 +128,18 @@ async def login_cmd(update: Update, ctx: ContextTypes) -> int:
         support_chat_id  = os.getenv("SUPPORT_CHAT_ID") or f"@{support_username}"
 
         # ── Tell the user they don't have access ─────────────────────────
-        # Show inline button linking directly to the admin's Telegram profile
+        # Deep link: opens chat with admin AND pre-fills a message with user's ID
+        prefilled = f"Salom! Mening ID: {uid}. Iltimos, botga kirishga ruxsat bering."
+        import urllib.parse
+        encoded  = urllib.parse.quote(prefilled)
+        deep_url = f"https://t.me/{support_username}?text={encoded}"
+
         await update.message.reply_html(
             t("admin_not_in_list", lang, uid=uid),
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(
-                    "👤 Admin bilan bog'lanish",
-                    url=f"https://t.me/{support_username}",
+                    "💬 Adminga yozish",
+                    url=deep_url,
                 )
             ]]),
         )
