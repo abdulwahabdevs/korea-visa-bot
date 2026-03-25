@@ -533,7 +533,8 @@ def _parse_result_gb01(driver: webdriver.Chrome) -> dict:
     date_re   = _re.compile(r"\d{4}[-./]\d{2}[-./]\d{2}")
     visa_re   = _re.compile(r"[가-힣A-Z].*\([A-Z]-\d")
     status_kw = ["접수", "심사", "발급", "불허", "거부", "보완", "허가", "사용완료",
-                 "발급준비", "추가심사", "여권교부"]
+                 "발급준비", "추가심사", "여권교부",
+                 "취소", "취하", "철회", "반려"]
 
     status_ko = visa_type = app_date = reason = ""
     for txt in texts:

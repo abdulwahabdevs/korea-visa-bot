@@ -467,7 +467,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
     ctx.bot_data[_KEY_LAST_VTYPE]   = vtype
 
     results    = [None] * total   # pre-allocated, preserves row order
-    counters   = {k: 0 for k in ("APPROVED", "PENDING", "SUPPLEMENT", "REJECTED", "NOT_FOUND", "ERROR")}
+    counters   = {k: 0 for k in ("APPROVED", "PENDING", "SUPPLEMENT", "REJECTED", "WITHDRAWN", "CANCELLED", "NOT_FOUND", "ERROR")}
     pool       = get_pool()
     loop       = asyncio.get_running_loop()
     start_time = time.time()
@@ -514,6 +514,8 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
                       pending=counters["PENDING"],
                       supplement=counters["SUPPLEMENT"],
                       rejected=counters["REJECTED"],
+                      withdrawn=counters["WITHDRAWN"],
+                      cancelled=counters["CANCELLED"],
                       not_found=counters["NOT_FOUND"],
                       error=counters["ERROR"],
                       elapsed=elapsed,      remaining=remaining,
@@ -588,8 +590,10 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
         s_bucket = s if s in counters else (
             "APPROVED"   if s in ("ISSUED", "USED") else
             "SUPPLEMENT" if s in ("SUPPLEMENT",) else
+            "WITHDRAWN"  if s in ("WITHDRAWN",) else
+            "CANCELLED"  if s in ("CANCELLED",) else
             "PENDING"    if s in ("UNDER_REVIEW", "RECEIVED", "SUPPLEMENT_DONE",
-                                   "WITHDRAWN", "CANCELLED", "RETURNED", "UNKNOWN") else
+                                   "RETURNED", "UNKNOWN") else
             "ERROR"
         )
         counters[s_bucket] = counters.get(s_bucket, 0) + 1
@@ -674,7 +678,8 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
         t("checkall_done", lang, total=total,
           approved=counters["APPROVED"], pending=counters["PENDING"],
           supplement=counters["SUPPLEMENT"],
-          rejected=counters["REJECTED"], not_found=counters["NOT_FOUND"],
+          rejected=counters["REJECTED"], withdrawn=counters["WITHDRAWN"],
+          cancelled=counters["CANCELLED"], not_found=counters["NOT_FOUND"],
           error=counters["ERROR"],       elapsed=elapsed_str),
         reply_markup=main_menu_keyboard(lang),
     )
