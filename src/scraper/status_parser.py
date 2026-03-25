@@ -73,14 +73,20 @@ _STATUS_MAP: dict[str, str] = {
 }
 
 
+# Pre-sorted by keyword length (longest first) for safe substring matching.
+# "접수철회" must be checked before "접수", "보완완료" before "보완", etc.
+_STATUS_MAP_BY_LENGTH = sorted(_STATUS_MAP.items(), key=lambda x: len(x[0]), reverse=True)
+
+
 def parse_status(raw_ko: str) -> str:
     """Return the English status constant for a Korean status string."""
     raw_ko = (raw_ko or "").strip()
-    # Direct match
+    # Direct match (O(1) dict lookup)
     if raw_ko in _STATUS_MAP:
         return _STATUS_MAP[raw_ko]
-    # Partial match (handles compound strings)
-    for ko_key, en_val in _STATUS_MAP.items():
+    # Partial / compound match — longest keywords first to prevent
+    # false positives (e.g. "접수" inside "접수철회").
+    for ko_key, en_val in _STATUS_MAP_BY_LENGTH:
         if ko_key in raw_ko:
             return en_val
     return "UNKNOWN"
