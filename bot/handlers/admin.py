@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 from functools import partial
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, LinkPreviewOptions
 from telegram.ext import (
     ContextTypes,
     CommandHandler,
@@ -69,6 +69,7 @@ OUTPUT_DIR    = Path(__file__).parent.parent.parent / "data" / "output"
 _KEY_LAST_EXPORT   = "last_export_path"
 _KEY_LAST_SESSION  = "last_bulk_session_key"
 _KEY_LAST_VTYPE    = "last_bulk_vtype"
+_KEY_BULK_CANCEL   = "bulk_cancel_flag"
 
 
 def _lang(uid: int) -> str:
@@ -141,7 +142,14 @@ async def login_cmd(update: Update, ctx: ContextTypes) -> int:
         )
         encoded  = urllib.parse.quote(prefilled)
         deep_url = f"https://t.me/{support_username}?text={encoded}"
-        await update.message.reply_text(deep_url)
+        await update.message.reply_html(
+            f'\U0001f464 <a href="{deep_url}">@{support_username}</a>',
+            link_preview_options=LinkPreviewOptions(
+                is_disabled=False,
+                url=f"https://t.me/{support_username}",
+                show_above_text=False,
+            ),
+        )
 
         # NOTE: We intentionally do NOT notify the admin here.
         # The user sees the profile card with "SEND MESSAGE" —
@@ -503,9 +511,14 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
 
     async def _check_one(i: int, stu) -> None:
         nonlocal done_count, last_name, last_status
+        # ── Check if admin cancelled ─────────────────────────────────────
+        if ctx.bot_data.get(_KEY_BULK_CANCEL):
+            return
         # ── Stagger task starts to prevent concurrent portal reloads ─────
         if i <= _pool_size:
             await asyncio.sleep((i - 1) * 3.0)
+        if ctx.bot_data.get(_KEY_BULK_CANCEL):
+            return
         try:
             async with _sem:
                 if vtype == "vtype_evisa":
@@ -591,6 +604,9 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
 
         # Update progress after EVERY completion (rate-limit guard handles throttle)
         await _edit_progress()
+
+    # ── Reset cancel flag ────────────────────────────────────────────────
+    ctx.bot_data[_KEY_BULK_CANCEL] = False
 
     # ── Fire all rows in parallel ─────────────────────────────────────────────
     interrupted = False
@@ -969,6 +985,27 @@ async def exportpartial_cmd(update: Update, ctx: ContextTypes) -> None:
         )
 
 
+
+
+# ── /stopcheck — cancel running bulk check ────────────────────────────────────
+
+async def stopcheck_cmd(update: Update, ctx: ContextTypes) -> None:
+    uid  = update.effective_user.id
+    lang = _lang(uid)
+    if not _is_authed(uid):
+        await update.message.reply_html(t("admin_only", lang)); return
+
+    if ctx.bot_data.get(_KEY_BULK_CANCEL):
+        await update.message.reply_html("ℹ️ Tekshiruv allaqachon to'xtatilmoqda…")
+        return
+
+    ctx.bot_data[_KEY_BULK_CANCEL] = True
+    await update.message.reply_html(
+        "🛑 <b>Tekshiruv to'xtatilmoqda...</b>\n"
+        "Joriy tekshiruvlar tugagach natijalar yuboriladi.\n"
+        "Qolgan qatorlar o'tkazib yuboriladi."
+    )
+
 # ── Handler registration ──────────────────────────────────────────────────────
 
 def register(app) -> None:
@@ -1012,3 +1049,4 @@ def register(app) -> None:
     app.add_handler(CommandHandler("students",      students_cmd))
     app.add_handler(CommandHandler("stats",         stats_cmd))
     app.add_handler(CommandHandler("retryerrors",   retryerrors_cmd))
+    app.add_handler(CommandHandler("stopcheck",     stopcheck_cmd))

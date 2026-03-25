@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 import os
 
-from telegram import Update
+from telegram import Update, LinkPreviewOptions
 from telegram.ext import (
     ContextTypes, CommandHandler, CallbackQueryHandler,
     MessageHandler, ConversationHandler, filters,
@@ -88,53 +88,34 @@ async def guide_cmd(update: Update, ctx: ContextTypes) -> None:
 # ── Feedback conversation ─────────────────────────────────────────────────────
 
 async def feedback_start(update: Update, ctx: ContextTypes) -> int:
-    """Entry point — prompt user to describe their issue."""
+    """Show admin profile card — user contacts admin directly (not through bot)."""
     lang = _lang(update)
+    uid  = update.effective_user.id
+    support_username = os.getenv("SUPPORT_USERNAME", "gokorea_admin1").lstrip("@")
+    bot_username     = (await ctx.bot.get_me()).username or "bot"
+
     await update.message.reply_html(
         t("feedback_prompt", lang),
-        reply_markup=cancel_keyboard(lang),
-    )
-    return AWAIT_FEEDBACK
-
-
-async def feedback_receive(update: Update, ctx: ContextTypes) -> int:
-    """Receive text or photo and forward to all admins."""
-    user = update.effective_user
-    lang = _lang(update)
-    msg  = update.message
-
-    # Cancel check
-    if msg.text and msg.text.strip() in {"❌ Bekor qilish", "❌ Cancel", "❌ Отмена", "/cancel"}:
-        await msg.reply_html(t("cancelled", lang), reply_markup=main_menu_keyboard(lang))
-        return ConversationHandler.END
-
-    # Must have text or photo
-    if not msg.text and not msg.photo and not msg.document:
-        await msg.reply_html(t("feedback_empty", lang))
-        return AWAIT_FEEDBACK
-
-    # Build header for admins
-    username  = f"@{user.username}" if user.username else "yo'q"
-    header    = (
-        f"📩 <b>Yangi muammo bildirish</b>\n"
-        f"👤 {user.full_name} ({username})\n"
-        f"🆔 <code>{user.id}</code>\n"
-        f"{'─' * 28}"
-    )
-
-    # Forward to all admins
-    admin_ids = _admin_ids()
-    for admin_id in admin_ids:
-        try:
-            await ctx.bot.send_message(chat_id=admin_id, text=header, parse_mode="HTML")
-            # Forward the original message so admins see exactly what user sent
-            await msg.forward(chat_id=admin_id)
-        except Exception as exc:
-            logger.warning("Could not forward feedback to admin %d: %s", admin_id, exc)
-
-    await msg.reply_html(
-        t("feedback_sent", lang),
         reply_markup=main_menu_keyboard(lang),
+    )
+
+    # Admin profile card with pre-filled message
+    import urllib.parse
+    prefilled = (
+        f"Salom! @{bot_username} botda muammo bor.\n"
+        f"Mening ID: {uid}\n"
+        f"Muammo: "
+    )
+    encoded  = urllib.parse.quote(prefilled)
+    deep_url = f"https://t.me/{support_username}?text={encoded}"
+
+    await update.message.reply_html(
+        f'\U0001f464 <a href="{deep_url}">@{support_username}</a>',
+        link_preview_options=LinkPreviewOptions(
+            is_disabled=False,
+            url=f"https://t.me/{support_username}",
+            show_above_text=False,
+        ),
     )
     return ConversationHandler.END
 
@@ -174,7 +155,7 @@ def register(app) -> None:
     app.add_handler(CommandHandler("guide",    guide_cmd))
     app.add_handler(CallbackQueryHandler(language_callback, pattern=r"^lang_"))
 
-    # Feedback conversation — handles text, photos and documents
+    # Feedback — shows admin profile card for direct contact (no bot forwarding)
     app.add_handler(ConversationHandler(
         entry_points=[
             CommandHandler("feedback", feedback_start),
@@ -183,14 +164,7 @@ def register(app) -> None:
                 feedback_start,
             ),
         ],
-        states={
-            AWAIT_FEEDBACK: [
-                MessageHandler(
-                    (filters.TEXT | filters.PHOTO | filters.Document.ALL) & ~filters.COMMAND,
-                    feedback_receive,
-                ),
-            ],
-        },
+        states={},
         fallbacks=[
             CommandHandler("cancel", feedback_cancel),
         ],

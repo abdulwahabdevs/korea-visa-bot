@@ -207,6 +207,19 @@ async def _run_check(
         # OPT-G+Pool: borrow an idle Chrome worker from the pool.
         # Other users run on different workers concurrently.
         pool = get_pool()
+
+        # ── Notify student if all workers are busy ────────────────────
+        if pool.idle_count() == 0:
+            _busy_msg = {
+                "uz": "⏳ Hozirda barcha tekshiruv kanallari band. Navbatda turibsiz, ~15-30 soniya kuting…",
+                "en": "⏳ All workers are busy right now. You're in queue, please wait ~15-30 seconds…",
+                "ru": "⏳ Все каналы проверки заняты. Вы в очереди, подождите ~15-30 секунд…",
+            }.get(lang, "⏳ All workers busy, please wait…")
+            try:
+                await progress_msg.edit_text(_busy_msg)
+            except Exception:
+                pass
+
         loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(
             None, pool.check_diplomatic, passport, full_name, dob
