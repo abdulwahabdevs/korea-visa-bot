@@ -517,18 +517,18 @@ STRINGS: dict[str, dict[str, str]] = {
     "admin_not_in_list": {
         "uz": (
             "🚫 <b>Sizda kirish huquqi yo'q.</b>\n\n"
-            f"Sizning ID: <code>{{uid}}</code>\n"
-            "Ruxsat olish uchun admin bilan bog'laning."
+            "Sizning ID: <code>{uid}</code>\n"
+            "Ruxsat olish uchun @{support} bilan bog'laning."
         ),
         "en": (
             "🚫 <b>You are not allowed to use this bot.</b>\n\n"
-            f"Your user ID: <code>{{uid}}</code>\n"
-            "Please contact the admin to get access."
+            "Your user ID: <code>{uid}</code>.\n"
+            "Please contact @{support} to get access."
         ),
         "ru": (
             "🚫 <b>У вас нет доступа к этому боту.</b>\n\n"
-            f"Ваш ID: <code>{{uid}}</code>\n"
-            "Обратитесь к администратору для получения доступа."
+            "Ваш ID: <code>{uid}</code>.\n"
+            "Свяжитесь с @{support} для получения доступа."
         ),
     },
 

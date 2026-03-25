@@ -49,7 +49,6 @@ from src.checker import (
     ValidationError,
 )
 from src.excel_reader import read_students, read_students_validated, StudentRecord
-from src.telethon_client import forward_as_user
 from src.excel_writer import write_results, write_history_export
 
 logger = logging.getLogger(__name__)
@@ -121,57 +120,34 @@ async def login_cmd(update: Update, ctx: ContextTypes) -> int:
     uid  = update.effective_user.id
     lang = _lang(uid)
     if not _is_admin_id(uid):
-        user     = update.effective_user
-        username = f"@{user.username}" if user.username else "—"
         support_username = os.getenv("SUPPORT_USERNAME", "gokorea_admin1").lstrip("@")
-        # SUPPORT_CHAT_ID is the numeric ID of the support account (most reliable)
-        # Falls back to @username if not set
-        support_chat_id  = os.getenv("SUPPORT_CHAT_ID") or f"@{support_username}"
+        bot_username = (await ctx.bot.get_me()).username or "bot"
 
-        # ── Tell the user they don't have access ─────────────────────────
-        # Deep link: opens chat with admin AND pre-fills a message with user's ID
-        prefilled = f"Salom! Mening ID: {uid}. Iltimos, botga kirishga ruxsat bering."
+        # ── Friendly "not authorized" message ──────────────────────────
+        await update.message.reply_html(
+            t("admin_not_in_list", lang, uid=uid, support=support_username),
+        )
+
+        # ── Admin profile card ─────────────────────────────────────────
+        # Sending a bare https://t.me/username link makes Telegram render
+        # the admin's profile photo, name, bio and a "SEND MESSAGE" button.
+        # Clicking "SEND MESSAGE" opens a DIRECT chat with the admin
+        # (not through the bot) with a pre-filled message containing
+        # the user's ID so the admin knows who is asking.
         import urllib.parse
+        prefilled = (
+            f"My ID is {uid}\n"
+            f"Please allow me to use @{bot_username}"
+        )
         encoded  = urllib.parse.quote(prefilled)
         deep_url = f"https://t.me/{support_username}?text={encoded}"
+        await update.message.reply_text(deep_url)
 
-        await update.message.reply_html(
-            t("admin_not_in_list", lang, uid=uid),
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton(
-                    "💬 Adminga yozish",
-                    url=deep_url,
-                )
-            ]]),
-        )
-
-        # ── Notify support account ────────────────────────────────────────
-        # Send header text then forward the /login message.
-        # Forwarding makes Telegram show the user's profile card with photo.
-        notif = (
-            f"🔔 <b>Kirish so'rovi</b>\n"
-            f"👤 {user.full_name} ({username})\n"
-            f"🆔 <code>{user.id}</code>\n\n"
-            f"Bu foydalanuvchi /login buyrug'ini ishlatmoqchi.\n"
-            f"Ruxsat berish uchun ID-ni <code>ADMIN_CHAT_IDS</code>ga qo'shing."
-        )
-        try:
-            await ctx.bot.send_message(
-                chat_id=support_chat_id,
-                text=notif,
-                parse_mode="HTML",
-            )
-            # Try Telethon forward first — shows real profile card with photo
-            forwarded = await forward_as_user(
-                from_chat_id=uid,
-                message_id=update.message.message_id,
-                to_chat_id=support_chat_id,
-            )
-            if not forwarded:
-                # Fallback: bot forward (no profile card but still delivers)
-                await update.message.forward(chat_id=support_chat_id)
-        except Exception as _e:
-            logger.warning("Could not notify support %s of login attempt: %s", support_chat_id, _e)
+        # NOTE: We intentionally do NOT notify the admin here.
+        # The user sees the profile card with "SEND MESSAGE" —
+        # if they choose to reach out, the message goes directly
+        # to the admin's personal chat. No bot spam on every
+        # login attempt.
         return ConversationHandler.END
     if _is_authed(uid):
         await update.message.reply_html(t("admin_already_logged_in", lang))
