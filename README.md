@@ -12,9 +12,10 @@ A multilingual Telegram bot that lets **students** check their Korean visa appli
 - [Configuration (.env)](#configuration-env)
 - [Running the Bot](#running-the-bot)
 - [Bot Usage](#bot-usage)
-  - [Student Commands](#student-commands)
-  - [Admin Commands](#admin-commands)
+- [Student Commands](#student-commands)
+- [Admin Commands](#admin-commands)
 - [Visa Check Types](#visa-check-types)
+- [Status Types & Colors](#status-types--colors)
 - [Excel Format for Bulk Check](#excel-format-for-bulk-check)
 - [Languages](#languages)
 - [Deployment (Free Server)](#deployment-free-server)
@@ -287,6 +288,33 @@ Bot:    🔍 Checking... ✅ Result displayed
 
 ---
 
+## 🎨 Status Types & Colors
+
+The portal returns Korean status strings which the bot maps to distinct English categories.
+Each category has its **own emoji**, **bot message description**, and **Excel row color** so admins can tell them apart at a glance.
+
+| Korean (진행상태) | English Code | Emoji | Excel Color | Meaning |
+|------------------|-------------|-------|-------------|----------|
+| 허가 | `APPROVED` | 🟢 | 💚 Light Green | Visa approved |
+| 발급 / 발급완료 | `ISSUED` | 🟢 | 💚 Light Green | Visa issued |
+| 사용완료 | `USED` | ✅ | 💚 Dark Green | Visa used — entered Korea |
+| 접수 | `RECEIVED` | 🟡 | 💛 Light Yellow | Application received, no review yet |
+| 심사 / 심사중 / 추가심사 | `UNDER_REVIEW` | 🔵 | 💙 Light Blue | Actively under review |
+| 발급준비중 | `PENDING` | 🟡 | 💛 Yellow | Generic pending / preparing issuance |
+| **보완요청 / 보완중** | **`SUPPLEMENT`** | **📋** | **🟧 Orange** | **Additional docs REQUESTED — action needed!** |
+| **보완완료** | **`SUPPLEMENT_DONE`** | **📤** | **💙 Blue-grey** | **Docs submitted — back in review queue** |
+| 불허 / 거부 | `REJECTED` | 🔴 | ❤️ Red | Application denied |
+| 반려 | `RETURNED` | 🟠 | 🩷 Salmon | Returned by consulate |
+| 취하 / 접수철회 | `WITHDRAWN` | ⚪ | 🩶 Grey | Applicant withdrew voluntarily |
+| **신청취소** | **`CANCELLED`** | **⚫** | **🩶 Dark Grey** | **Application officially cancelled** |
+| — | `NOT_FOUND` | ⬜ | ⬜ Light Grey | Record not found on portal |
+| — | `ERROR` | 🟣 | 💜 Mauve | Technical error (retry later) |
+
+> **Key distinction:** `SUPPLEMENT` (📋 orange) means the officer is **waiting for your documents** — it requires action.
+> `SUPPLEMENT_DONE` (📤) means documents were submitted and the application is **back in the review queue** — treated as pending.
+
+---
+
 ## 📊 Excel Format for Bulk Check
 
 ### E-Visa Bulk (`/checkall` → E-Visa)
@@ -409,6 +437,20 @@ git push -u origin main
 ---
 
 ## 📝 Changelog
+
+### v1.0.6 (status categories overhaul)
+- **NEW:** `SUPPLEMENT` status (보완요청/보완중) is now a **dedicated orange category** — clearly separated from pending.
+- **NEW:** `SUPPLEMENT_DONE` status (보완완료) — docs submitted, mapped to **pending** (back in review queue).
+- **NEW:** `CANCELLED` status (신청취소) — new portal status, shown as dark grey.
+- **NEW:** `RETURNED` status (반려) — now has its **own salmon color**, separated from `REJECTED`.
+- **NEW:** `UNDER_REVIEW` uses 🔵 blue emoji (was 🟡 yellow, same as `PENDING`).
+- **NEW:** `ERROR` uses 🟣 purple emoji & mauve Excel color — no longer confused with `REJECTED`.
+- **NEW:** Progress bar & `/stats` now show a **Supplement** counter as a separate row.
+- **NEW:** 6 new `status_desc_*` bot messages (SUPPLEMENT_DONE, CANCELLED, RECEIVED, UNDER_REVIEW, ISSUED, RETURNED).
+- **FIX (critical):** `strings.py` structural bug — `cert_*` and `feedback_*` strings were accidentally nested inside the `STATUS_EMOJI` dict instead of `STRINGS`. Moved them back to `STRINGS`.
+- **FIX:** `facade.py` status mapping changed from dict to **ordered list** — prevents false substring matches (e.g. 보완완료 no longer matched by 보완 first, 접수철회 no longer matched by 접수 first).
+- **IMPROVED:** Every status type now has a **unique Excel row color** — admins can scan bulk results visually.
+- **IMPROVED:** `/stats` command shows separate rows for supplement, returned, withdrawn/cancelled.
 
 ### v1.0.2 (security & quality)
 - **FIX (critical):** Auth bypass — empty `ADMIN_PASSWORD` no longer grants admin access to everyone.
