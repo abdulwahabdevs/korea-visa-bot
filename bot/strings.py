@@ -372,9 +372,24 @@ STRINGS: dict[str, dict[str, str]] = {
 
     # ── Status descriptions ───────────────────────────────────────────────
     "status_desc_PENDING": {
-        "uz": "⏳ Ariza ko'rib chiqilmoqda. Qaror hali chiqarilmagan.",
-        "en": "⏳ Application is under review. No decision yet.",
-        "ru": "⏳ Заявка на рассмотрении. Решение ещё не принято.",
+        "uz": "🟡 Ariza ko'rib chiqilmoqda. Qaror hali chiqarilmagan.",
+        "en": "🟡 Application is being processed. No decision yet.",
+        "ru": "🟡 Заявка обрабатывается. Решение ещё не принято.",
+    },
+    "status_desc_RECEIVED": {
+        "uz": "🟡 Ariza qabul qilindi. Hali ko'rib chiqish boshlanmagan.",
+        "en": "🟡 Application received. Review has not started yet.",
+        "ru": "🟡 Заявка принята. Рассмотрение ещё не началось.",
+    },
+    "status_desc_UNDER_REVIEW": {
+        "uz": "🔵 Ariza ko'rib chiqilmoqda. Qaror hali chiqarilmagan.",
+        "en": "🔵 Application is actively under review. No decision yet.",
+        "ru": "🔵 Заявка на рассмотрении. Решение ещё не принято.",
+    },
+    "status_desc_ISSUED": {
+        "uz": "🟢 Viza berildi (Issued)! Elchixona/konsullik bilan bog'laning.",
+        "en": "🟢 Visa has been issued! Contact the embassy/consulate.",
+        "ru": "🟢 Виза выдана! Обратитесь в посольство/консульство.",
     },
     "status_desc_APPROVED": {
         "uz": "🎉 Viza tasdiqlandi! Elchixona/konsullik bilan bog'laning.",
@@ -396,10 +411,35 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "⚠️ No data found. Double-check your passport number and name.",
         "ru": "⚠️ Данные не найдены. Проверьте номер паспорта и имя.",
     },
+    "status_desc_SUPPLEMENT": {
+        "uz": "📋 <b>Qo'shimcha hujjat talab qilindi!</b> Sabab va talab qilingan hujjatlarni diqqat bilan o'qing va tez orada topshiring.",
+        "en": "📋 <b>Supplementary documents requested!</b> Please read the reason carefully and submit the required documents promptly.",
+        "ru": "📋 <b>Запрошены дополнительные документы!</b> Внимательно прочитайте причину и оперативно предоставьте требуемые документы.",
+    },
+    "status_desc_SUPPLEMENT_DONE": {
+        "uz": "📤 Qo'shimcha hujjatlar topshirildi. Ariza yana ko'rib chiqish navbatida.",
+        "en": "📤 Supplementary documents submitted. Application is back in the review queue.",
+        "ru": "📤 Дополнительные документы поданы. Заявка снова в очереди на рассмотрение.",
+    },
+    "status_desc_WITHDRAWN": {
+        "uz": "⚪ Ariza qaytarib olindi. Talaba arizasini o'zi qaytarib olgan.",
+        "en": "⚪ Application withdrawn by the applicant.",
+        "ru": "⚪ Заявка отозвана заявителем.",
+    },
+    "status_desc_CANCELLED": {
+        "uz": "⚫ Ariza bekor qilindi (신청취소). Bu talaba arizasi rasman bekor qilingan.",
+        "en": "⚫ Application cancelled (신청취소). This application has been officially cancelled.",
+        "ru": "⚫ Заявка отменена (신청취소). Эта заявка официально аннулирована.",
+    },
+    "status_desc_RETURNED": {
+        "uz": "🟠 Ariza qaytarildi. Konsullik tomonidan qaytarilgan.",
+        "en": "🟠 Application returned by the consulate.",
+        "ru": "🟠 Заявка возвращена консульством.",
+    },
     "status_desc_ERROR": {
-        "uz": "🔴 Texnik xatolik. Iltimos keyinroq urinib ko'ring.",
-        "en": "🔴 Technical error. Please try again later.",
-        "ru": "🔴 Техническая ошибка. Попробуйте позже.",
+        "uz": "🟣 Texnik xatolik. Iltimos keyinroq urinib ko'ring.",
+        "en": "🟣 Technical error. Please try again later.",
+        "ru": "🟣 Техническая ошибка. Попробуйте позже.",
     },
 
     # ── Cancel ────────────────────────────────────────────────────────────
@@ -590,10 +630,11 @@ STRINGS: dict[str, dict[str, str]] = {
             "{bar}  <b>{done}/{total}</b>\n"
             "\n"
             "🟢 Tasdiqlangan: <b>{approved}</b>\n"
-            "🟡 Kutilmoqda/Ko'rib chiqilmoqda: <b>{pending}</b>\n"
-            "🔴 Rad etilgan: <b>{rejected}</b>\n"
-            "⚪ Topilmadi:   <b>{not_found}</b>\n"
-            "❌ Xato:        <b>{error}</b>\n"
+            "🟡 Kutilmoqda:   <b>{pending}</b>\n"
+            "📋 Hujjat so'raldi: <b>{supplement}</b>\n"
+            "🔴 Rad etilgan:  <b>{rejected}</b>\n"
+            "⬜ Topilmadi:    <b>{not_found}</b>\n"
+            "🟣 Xato:         <b>{error}</b>\n"
             "\n"
             "⏱ {elapsed}s o'tdi · ~{remaining}s qoldi\n"
             "\n"
@@ -604,11 +645,12 @@ STRINGS: dict[str, dict[str, str]] = {
             "\n"
             "{bar}  <b>{done}/{total}</b>\n"
             "\n"
-            "🟢 Approved:  <b>{approved}</b>\n"
-            "🟡 Pending/Under review: <b>{pending}</b>\n"
-            "🔴 Rejected:  <b>{rejected}</b>\n"
-            "⚪ Not found: <b>{not_found}</b>\n"
-            "❌ Error:     <b>{error}</b>\n"
+            "🟢 Approved:    <b>{approved}</b>\n"
+            "🟡 Pending:     <b>{pending}</b>\n"
+            "📋 Supplement:  <b>{supplement}</b>\n"
+            "🔴 Rejected:    <b>{rejected}</b>\n"
+            "⬜ Not found:   <b>{not_found}</b>\n"
+            "🟣 Error:       <b>{error}</b>\n"
             "\n"
             "⏱ {elapsed}s elapsed · ~{remaining}s left\n"
             "\n"
@@ -619,11 +661,12 @@ STRINGS: dict[str, dict[str, str]] = {
             "\n"
             "{bar}  <b>{done}/{total}</b>\n"
             "\n"
-            "🟢 Одобрено:    <b>{approved}</b>\n"
-            "🟡 На рассмотрении: <b>{pending}</b>\n"
-            "🔴 Отказано:    <b>{rejected}</b>\n"
-            "⚪ Не найдено:  <b>{not_found}</b>\n"
-            "❌ Ошибка:      <b>{error}</b>\n"
+            "🟢 Одобрено:      <b>{approved}</b>\n"
+            "🟡 На рассм.:     <b>{pending}</b>\n"
+            "📋 Доп. документы: <b>{supplement}</b>\n"
+            "🔴 Отказано:      <b>{rejected}</b>\n"
+            "⬜ Не найдено:    <b>{not_found}</b>\n"
+            "🟣 Ошибка:        <b>{error}</b>\n"
             "\n"
             "⏱ Прошло {elapsed}s · осталось ~{remaining}s\n"
             "\n"
@@ -638,10 +681,11 @@ STRINGS: dict[str, dict[str, str]] = {
             "⏱ Sarflangan vaqt: <b>{elapsed}</b>\n"
             "\n"
             "🟢 Tasdiqlangan: <b>{approved}</b>\n"
-            "🟡 Kutilmoqda/Ko'rib chiqilmoqda: <b>{pending}</b>\n"
-            "🔴 Rad etilgan: <b>{rejected}</b>\n"
-            "⚪ Topilmadi:   <b>{not_found}</b>\n"
-            "❌ Xato:        <b>{error}</b>\n"
+            "🟡 Kutilmoqda:   <b>{pending}</b>\n"
+            "📋 Hujjat so'raldi: <b>{supplement}</b>\n"
+            "🔴 Rad etilgan:  <b>{rejected}</b>\n"
+            "⬜ Topilmadi:    <b>{not_found}</b>\n"
+            "🟣 Xato:         <b>{error}</b>\n"
             "\n"
             "📎 Excel fayl quyida yuborildi."
         ),
@@ -651,11 +695,12 @@ STRINGS: dict[str, dict[str, str]] = {
             "👥 Total: <b>{total}</b> students\n"
             "⏱ Time taken: <b>{elapsed}</b>\n"
             "\n"
-            "🟢 Approved:  <b>{approved}</b>\n"
-            "🟡 Pending/Under review: <b>{pending}</b>\n"
-            "🔴 Rejected:  <b>{rejected}</b>\n"
-            "⚪ Not found: <b>{not_found}</b>\n"
-            "❌ Errors:    <b>{error}</b>\n"
+            "🟢 Approved:    <b>{approved}</b>\n"
+            "🟡 Pending:     <b>{pending}</b>\n"
+            "📋 Supplement:  <b>{supplement}</b>\n"
+            "🔴 Rejected:    <b>{rejected}</b>\n"
+            "⬜ Not found:   <b>{not_found}</b>\n"
+            "🟣 Errors:      <b>{error}</b>\n"
             "\n"
             "📎 Excel file attached below."
         ),
@@ -665,11 +710,12 @@ STRINGS: dict[str, dict[str, str]] = {
             "👥 Всего: <b>{total}</b> студентов\n"
             "⏱ Время: <b>{elapsed}</b>\n"
             "\n"
-            "🟢 Одобрено:    <b>{approved}</b>\n"
-            "🟡 На рассмотрении: <b>{pending}</b>\n"
-            "🔴 Отказано:    <b>{rejected}</b>\n"
-            "⚪ Не найдено:  <b>{not_found}</b>\n"
-            "❌ Ошибки:      <b>{error}</b>\n"
+            "🟢 Одобрено:      <b>{approved}</b>\n"
+            "🟡 На рассм.:     <b>{pending}</b>\n"
+            "📋 Доп. документы: <b>{supplement}</b>\n"
+            "🔴 Отказано:      <b>{rejected}</b>\n"
+            "⬜ Не найдено:    <b>{not_found}</b>\n"
+            "🟣 Ошибки:        <b>{error}</b>\n"
             "\n"
             "📎 Файл Excel прикреплён ниже."
         ),
@@ -689,21 +735,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "👥 Registered students: <b>{count}</b>",
         "ru": "👥 Зарегистрированных студентов: <b>{count}</b>",
     },
-}
 
-STATUS_EMOJI: dict[str, str] = {
-    "PENDING":      "🟡",
-    "APPROVED":     "🟢",
-    "USED":         "✅",   # sausawagreed + used by student
-    "REJECTED":     "🔴",
-    "NOT_FOUND":    "⚪",
-    "ERROR":        "🔴",
-    "UNKNOWN":      "❓",
-    "RECEIVED":     "🟡",
-    "UNDER_REVIEW": "🟡",
-    "ISSUED":       "🟢",
-    "WITHDRAWN":    "⚪",
-    "RETURNED":     "🟡",
     # ── Certificate download strings ──────────────────────────────────────
     "cert_downloading": {
         "uz": "⏳ Sertifikat yuklab olinmoqda, iltimos kuting…",
@@ -721,19 +753,19 @@ STATUS_EMOJI: dict[str, str] = {
         "ru": "❌ Ошибка загрузки справки: {error}",
     },
     "cert_caption": {
-        "uz": "📄 Viza tasdiqlanishi haqida ma'lumotnoma (비자발급확인서)",
+        "uz": "📄 Viza tasdiqlanishi haqida ma\'lumotnoma (비자발급확인서)",
         "en": "📄 Visa Approval Certificate (비자발급확인서)",
         "ru": "📄 Справка о выдаче визы (비자발급확인서)",
     },
 
     # ── Feedback ──────────────────────────────────────────────────────────────
     "feedback_prompt": {
-        "uz": "📩 <b>Muammo bildirish</b>\n\nXatolik yoki muammo haqida yozing yoki screenshot yuboring.\nAdminlar tez orada ko'rib chiqadi.\n\n❌ Bekor qilish uchun /cancel",
+        "uz": "📩 <b>Muammo bildirish</b>\n\nXatolik yoki muammo haqida yozing yoki screenshot yuboring.\nAdminlar tez orada ko\'rib chiqadi.\n\n❌ Bekor qilish uchun /cancel",
         "en": "📩 <b>Report an Issue</b>\n\nDescribe your problem or send a screenshot.\nOur admins will review it shortly.\n\n❌ Type /cancel to cancel",
         "ru": "📩 <b>Сообщить о проблеме</b>\n\nОпишите проблему или отправьте скриншот.\nАдминистраторы рассмотрят ваше обращение.\n\n❌ /cancel для отмены",
     },
     "feedback_sent": {
-        "uz": "✅ Muammongiz adminga yuborildi. Tez orada ko'rib chiqiladi.",
+        "uz": "✅ Muammongiz adminga yuborildi. Tez orada ko\'rib chiqiladi.",
         "en": "✅ Your report has been sent to the admins. We will review it shortly.",
         "ru": "✅ Ваше сообщение отправлено администраторам. Мы рассмотрим его в ближайшее время.",
     },
@@ -742,7 +774,31 @@ STATUS_EMOJI: dict[str, str] = {
         "en": "⚠️ Please send a text message or a screenshot describing your issue.",
         "ru": "⚠️ Пожалуйста, напишите текст или отправьте скриншот с описанием проблемы.",
     },
+}
 
+# ── Status emoji map ──────────────────────────────────────────────────────────
+STATUS_EMOJI: dict[str, str] = {
+    # Approved family (green)
+    "APPROVED":        "🟢",
+    "ISSUED":          "🟢",
+    "USED":            "✅",
+    # Pending family (yellow / blue)
+    "PENDING":         "🟡",
+    "RECEIVED":        "🟡",
+    "UNDER_REVIEW":    "🔵",
+    "SUPPLEMENT_DONE": "📤",   # docs submitted, back in review queue
+    # Supplement requested (orange)
+    "SUPPLEMENT":      "📋",   # officer asked for additional docs
+    # Rejected / returned (red / orange)
+    "REJECTED":        "🔴",
+    "RETURNED":        "🟠",
+    # Withdrawn / cancelled (grey)
+    "WITHDRAWN":       "⚪",
+    "CANCELLED":       "⚫",
+    # Other
+    "NOT_FOUND":       "⬜",
+    "ERROR":           "🟣",
+    "UNKNOWN":         "❓",
 }
 
 

@@ -16,13 +16,9 @@ Python 3.14 compatibility:
 import asyncio
 import logging
 import os
-import sys
 import warnings
 from dotenv import load_dotenv
 
-# ── Warning filters ───────────────────────────────────────────────────────────
-# Suppress the harmless PTBUserWarning about per_message=False + CallbackQueryHandler.
-# Admin ConversationHandlers intentionally use per_message=False.
 warnings.filterwarnings(
     "ignore",
     message=r".*per_message=False.*CallbackQueryHandler.*",
@@ -31,7 +27,6 @@ warnings.filterwarnings(
 
 load_dotenv()
 
-# ── Logging ───────────────────────────────────────────────────────────────────
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 logging.basicConfig(
     format="%(asctime)s | %(levelname)-8s | %(name)s — %(message)s",
@@ -45,18 +40,29 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> None:
+    loop = asyncio.get_event_loop()
+
+    # Start Telethon before run_polling() takes over
+    try:
+        from src.telethon_client import start_telethon
+        loop.run_until_complete(start_telethon())
+    except Exception as e:
+        logger.warning("Telethon startup failed (profile card forwarding disabled): %s", e)
+
     from bot.app import create_app
     app = create_app()
     logger.info("🤖  Korea Visa Bot is running — press Ctrl+C to stop")
-    # run_polling() is synchronous — it manages its own event loop internally
-    app.run_polling(drop_pending_updates=True)
+    try:
+        app.run_polling(drop_pending_updates=True)
+    finally:
+        try:
+            from src.telethon_client import stop_telethon
+            loop.run_until_complete(stop_telethon())
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
-    # Python 3.14+ no longer auto-creates an event loop.
-    # Pre-create one so PTB's run_polling() can find it.
-    # asyncio.new_event_loop() and set_event_loop() are NOT deprecated —
-    # they work on Python 3.6 through 3.16+ without any warnings.
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     main()

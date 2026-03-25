@@ -15,17 +15,29 @@ from openpyxl.utils import get_column_letter
 logger = logging.getLogger(__name__)
 
 # Status colour map  (background fill hex, no #)
+# Each status gets a DISTINCT colour so admins can scan the Excel at a glance.
 STATUS_FILLS: dict[str, str] = {
-    "APPROVED":    "C6EFCE",   # green
-    "ISSUED":      "C6EFCE",   # green
-    "USED":        "A9D18E",   # darker green
-    "REJECTED":    "FFC7CE",   # red
-    "UNDER_REVIEW":"DDEBF7",   # blue
-    "RECEIVED":    "DDEBF7",   # blue
-    "PENDING":     "FFEB9C",   # yellow
-    "NOT_FOUND":   "D9D9D9",   # grey
-    "ERROR":       "FCE4D6",   # orange
-    "UNKNOWN":     "FFFFFF",   # white
+    # Approved family — greens
+    "APPROVED":        "C6EFCE",   # light green
+    "ISSUED":          "C6EFCE",   # light green
+    "USED":            "A9D18E",   # darker green (visa used, entered Korea)
+    # Pending family — yellows / blues
+    "PENDING":         "FFEB9C",   # yellow
+    "RECEIVED":        "FFF2CC",   # lighter yellow (just received, no review)
+    "UNDER_REVIEW":    "DDEBF7",   # light blue (actively being reviewed)
+    "SUPPLEMENT_DONE": "D6E4F0",   # blue-grey (docs submitted, back in queue)
+    # Supplement requested — orange (action required!)
+    "SUPPLEMENT":      "F4B084",   # orange — stands out as "action needed"
+    # Rejected / returned — reds
+    "REJECTED":        "FFC7CE",   # red
+    "RETURNED":        "F8CBAD",   # salmon/coral (returned by consulate)
+    # Withdrawn / cancelled — greys
+    "WITHDRAWN":       "D9D9D9",   # grey
+    "CANCELLED":       "BFBFBF",   # darker grey (신청취소)
+    # Other
+    "NOT_FOUND":       "EDEDED",   # light grey
+    "ERROR":           "E2BFDB",   # mauve/purple (distinct from red statuses)
+    "UNKNOWN":         "FFFFFF",   # white
 }
 
 HEADERS = [

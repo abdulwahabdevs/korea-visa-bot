@@ -375,7 +375,10 @@ def get_status_stats() -> dict:
     buckets = {
         "APPROVED": 0, "ISSUED": 0, "USED": 0,
         "UNDER_REVIEW": 0, "RECEIVED": 0, "PENDING": 0,
-        "REJECTED": 0, "NOT_FOUND": 0, "ERROR": 0, "UNKNOWN": 0,
+        "SUPPLEMENT": 0, "SUPPLEMENT_DONE": 0,
+        "REJECTED": 0, "RETURNED": 0,
+        "WITHDRAWN": 0, "CANCELLED": 0,
+        "NOT_FOUND": 0, "ERROR": 0, "UNKNOWN": 0,
     }
     for row in rows:
         key = row["status_en"] or "UNKNOWN"

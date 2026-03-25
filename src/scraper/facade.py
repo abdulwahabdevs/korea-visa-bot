@@ -309,24 +309,41 @@ def _parse_result_gb03(driver: webdriver.Chrome) -> dict:
         pass
 
     # ── Status mapping ────────────────────────────────────────────────────
-    status_map = {
-        "사용완료": "USED",
-        "허가":     "APPROVED",
-        "발급":     "ISSUED",
-        "불허":     "REJECTED",
-        "접수":     "RECEIVED",
-        "심사":     "UNDER_REVIEW",
-        "취하":     "WITHDRAWN",
-        "반려":     "RETURNED",
-    }
+    # Ordered list — longer/more-specific keywords FIRST to avoid false
+    # substring matches (e.g. "보완완료" must match before "보완",
+    # "접수철회" before "접수", "신청취소" before generic fallbacks).
+    status_map = [
+        # Supplement states (before 심사/접수)
+        ("보완완료", "SUPPLEMENT_DONE"),  # docs submitted → back in queue
+        ("보완요청", "SUPPLEMENT"),       # docs requested by officer
+        ("보완중",   "SUPPLEMENT"),       # supplementing in progress
+        ("보완",     "SUPPLEMENT"),       # fallback: any 보완 variant
+        # Cancelled / withdrawn (before 접수)
+        ("신청취소", "CANCELLED"),        # application cancelled
+        ("접수철회", "WITHDRAWN"),        # application withdrawn
+        ("취하",     "WITHDRAWN"),
+        ("철회",     "WITHDRAWN"),
+        # Approved / used
+        ("사용완료", "USED"),
+        ("허가",     "APPROVED"),
+        ("발급",     "ISSUED"),
+        ("여권교부", "APPROVED"),
+        # Rejected / returned
+        ("불허",     "REJECTED"),
+        ("거부",     "REJECTED"),
+        ("반려",     "RETURNED"),
+        # Pending / review
+        ("심사",     "UNDER_REVIEW"),
+        ("접수",     "RECEIVED"),
+    ]
     status_en = "UNKNOWN"
-    for ko_kw, en_kw in status_map.items():
+    for ko_kw, en_kw in status_map:
         if ko_kw in status_ko:
             status_en = en_kw
             break
 
     if not status_ko:                           # fallback: scan raw HTML
-        for ko_kw, en_kw in status_map.items():
+        for ko_kw, en_kw in status_map:
             if ko_kw in page:
                 status_en = en_kw
                 status_ko = ko_kw

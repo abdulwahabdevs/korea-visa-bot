@@ -49,6 +49,7 @@ from src.checker import (
     ValidationError,
 )
 from src.excel_reader import read_students, read_students_validated, StudentRecord
+from src.telethon_client import forward_as_user
 from src.excel_writer import write_results, write_history_export
 
 logger = logging.getLogger(__name__)
@@ -160,8 +161,15 @@ async def login_cmd(update: Update, ctx: ContextTypes) -> int:
                 text=notif,
                 parse_mode="HTML",
             )
-            # Forward triggers Telegram's native profile card rendering
-            await update.message.forward(chat_id=support_chat_id)
+            # Try Telethon forward first — shows real profile card with photo
+            forwarded = await forward_as_user(
+                from_chat_id=uid,
+                message_id=update.message.message_id,
+                to_chat_id=support_chat_id,
+            )
+            if not forwarded:
+                # Fallback: bot forward (no profile card but still delivers)
+                await update.message.forward(chat_id=support_chat_id)
         except Exception as _e:
             logger.warning("Could not notify support %s of login attempt: %s", support_chat_id, _e)
         return ConversationHandler.END
@@ -459,7 +467,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
     ctx.bot_data[_KEY_LAST_VTYPE]   = vtype
 
     results    = [None] * total   # pre-allocated, preserves row order
-    counters   = {k: 0 for k in ("APPROVED", "PENDING", "REJECTED", "NOT_FOUND", "ERROR")}
+    counters   = {k: 0 for k in ("APPROVED", "PENDING", "SUPPLEMENT", "REJECTED", "NOT_FOUND", "ERROR")}
     pool       = get_pool()
     loop       = asyncio.get_running_loop()
     start_time = time.time()
@@ -504,6 +512,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
                       done=done_count,      total=total,
                       approved=counters["APPROVED"],
                       pending=counters["PENDING"],
+                      supplement=counters["SUPPLEMENT"],
                       rejected=counters["REJECTED"],
                       not_found=counters["NOT_FOUND"],
                       error=counters["ERROR"],
@@ -577,9 +586,10 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
         s = result.get("status_en", "ERROR")
         # Normalise exotic statuses into display buckets
         s_bucket = s if s in counters else (
-            "APPROVED" if s in ("ISSUED", "USED") else
-            "PENDING"  if s in ("UNDER_REVIEW", "RECEIVED", "WITHDRAWN",
-                                 "RETURNED", "UNKNOWN") else
+            "APPROVED"   if s in ("ISSUED", "USED") else
+            "SUPPLEMENT" if s in ("SUPPLEMENT",) else
+            "PENDING"    if s in ("UNDER_REVIEW", "RECEIVED", "SUPPLEMENT_DONE",
+                                   "WITHDRAWN", "CANCELLED", "RETURNED", "UNKNOWN") else
             "ERROR"
         )
         counters[s_bucket] = counters.get(s_bucket, 0) + 1
@@ -590,8 +600,11 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
             "APPROVED": "Approved", "ISSUED": "Approved (Issued)",
             "USED": "Approved (Used)", "PENDING": "Pending",
             "RECEIVED": "Received", "UNDER_REVIEW": "Under Review",
+            "SUPPLEMENT": "Supplement Requested",
+            "SUPPLEMENT_DONE": "Supplement Submitted",
             "REJECTED": "Rejected", "WITHDRAWN": "Withdrawn",
-            "RETURNED": "Returned", "NOT_FOUND": "Not Found",
+            "CANCELLED": "Cancelled", "RETURNED": "Returned",
+            "NOT_FOUND": "Not Found",
             "ERROR": "Error", "UNKNOWN": "Unknown",
         }
         last_status  = f"{STATUS_EMOJI.get(s, '?')}{_STATUS_LABEL.get(s, s)}"
@@ -660,6 +673,7 @@ async def receive_excel(update: Update, ctx: ContextTypes) -> int:
     await update.message.reply_html(
         t("checkall_done", lang, total=total,
           approved=counters["APPROVED"], pending=counters["PENDING"],
+          supplement=counters["SUPPLEMENT"],
           rejected=counters["REJECTED"], not_found=counters["NOT_FOUND"],
           error=counters["ERROR"],       elapsed=elapsed_str),
         reply_markup=main_menu_keyboard(lang),

@@ -19,26 +19,57 @@ class ParsedStatus:
 
 
 # ── Korean → English mapping ──────────────────────────────────────────────────
+# Each English constant corresponds to a distinct UI category with its own
+# emoji, colour (bot message + Excel row fill) and progress-bar bucket.
+#
+# Category quick reference:
+#   APPROVED / ISSUED      → 🟢 green     (visa granted)
+#   USED                   → ✅ dark green (visa used, entered Korea)
+#   RECEIVED               → 🟡 yellow    (application received, no review yet)
+#   PENDING                → 🟡 yellow    (generic pending / preparing issuance)
+#   UNDER_REVIEW           → 🔵 blue      (actively being reviewed)
+#   SUPPLEMENT             → 📋 orange    (additional docs REQUESTED by officer)
+#   SUPPLEMENT_DONE        → 📤 yellow    (docs submitted, back in review queue)
+#   REJECTED               → 🔴 red       (denied)
+#   RETURNED               → 🟠 coral     (sent back by consulate)
+#   WITHDRAWN              → ⚪ grey      (applicant withdrew voluntarily)
+#   CANCELLED              → ⚫ dark grey (application cancelled / 신청취소)
+#   NOT_FOUND              → ⬜ light grey
+#   ERROR                  → 🟣 purple
+
 _STATUS_MAP: dict[str, str] = {
-    # Pending / in-review states
-    "접수":       "PENDING",    # Received
-    "심사중":     "PENDING",    # Under review
-    "보완요청":   "PENDING",    # Additional documents requested
-    "보완완료":   "PENDING",    # Documents supplemented (still under review)
-    "보완중":     "PENDING",    # Supplementing in progress
-    "추가심사중": "PENDING",    # Additional review in progress
-    "발급준비중": "PENDING",    # Preparing issuance
-    # Approved / Used states (gb03 '사용완료' = used → means visa was granted AND used)
+    # ── Pending / in-review states ────────────────────────────────────────
+    "접수":       "RECEIVED",       # Received (application registered)
+    "심사중":     "UNDER_REVIEW",   # Under review
+    "심사":       "UNDER_REVIEW",   # Review (shorter form)
+    "추가심사중": "UNDER_REVIEW",   # Additional review in progress
+    "발급준비중": "PENDING",        # Preparing issuance
+    "발급준비":   "PENDING",        # Preparing issuance (shorter)
+
+    # ── Supplement states (split: requested vs submitted) ─────────────────
+    "보완요청":   "SUPPLEMENT",      # Additional documents REQUESTED
+    "보완중":     "SUPPLEMENT",      # Supplementing in progress (docs not yet submitted)
+    "보완완료":   "SUPPLEMENT_DONE", # Documents submitted → back in review queue → pending
+
+    # ── Approved / Used states ────────────────────────────────────────────
     "발급":       "APPROVED",   # Issued
     "발급완료":   "APPROVED",   # Issuance complete
     "사증발급":   "APPROVED",   # Visa issued
-    "허가":       "APPROVED",   # Permitted
-    "사용완료":   "APPROVED",   # Used/completed (visa was issued and the student entered Korea)
-    "여권교부":   "APPROVED",   # Passport handed over
-    # Rejected states
-    "불허":       "REJECTED",   # Rejected
+    "허가":       "APPROVED",   # Permitted / approved
+    "사용완료":   "USED",       # Visa used — student entered Korea
+    "여권교부":   "APPROVED",   # Passport handed over (visa centre)
+
+    # ── Withdrawn / cancelled states ──────────────────────────────────────
+    "접수철회":   "WITHDRAWN",  # Application withdrawn by applicant
+    "철회":       "WITHDRAWN",  # Withdrawn
+    "취하":       "WITHDRAWN",  # Withdrawn (formal term)
+    "신청취소":   "CANCELLED",  # Application cancelled (NEW from portal)
+
+    # ── Rejected / returned states ────────────────────────────────────────
+    "불허":       "REJECTED",   # Rejected / denied
     "거부":       "REJECTED",   # Refused
     "불허가":     "REJECTED",   # Not permitted
+    "반려":       "RETURNED",   # Returned by consulate (distinct from rejected)
 }
 
 
