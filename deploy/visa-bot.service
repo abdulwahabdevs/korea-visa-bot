@@ -1,0 +1,44 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# systemd service — Korea Visa Bot
+#
+# Install: sudo cp deploy/visa-bot.service /etc/systemd/system/
+#          sudo systemctl daemon-reload
+#          sudo systemctl enable visa-bot
+#          sudo systemctl start visa-bot
+#
+# Logs:    journalctl -u visa-bot -f
+# ══════════════════════════════════════════════════════════════════════════════
+
+[Unit]
+Description=Korea Visa Status Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=botuser
+Group=botuser
+WorkingDirectory=/home/botuser/korea-visa-bot
+ExecStart=/home/botuser/korea-visa-bot/venv/bin/python run.py
+Restart=always
+RestartSec=10
+
+# Environment
+EnvironmentFile=/home/botuser/korea-visa-bot/.env
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/botuser/korea-visa-bot/data
+
+# Resource limits (adjust based on CHROME_POOL_SIZE)
+# 4 workers × 250MB + bot overhead = ~1.5GB safe limit
+MemoryMax=2G
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=visa-bot
+
+[Install]
+WantedBy=multi-user.target
