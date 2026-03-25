@@ -16,13 +16,15 @@ PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-# ── Minimal env vars ─────────────────────────────────────────────────────────
+# ── Test env vars (force-set to override .env / system values) ───────────────
+# CACHE_TTL_SECONDS MUST be force-set before any module reads it,
+# otherwise cache TTL tests will sleep for minutes instead of seconds.
 os.environ.setdefault("BOT_TOKEN", "test:fake_token")
 os.environ.setdefault("ADMIN_CHAT_IDS", "111111111")
 os.environ.setdefault("ADMIN_PASSWORD", "testpass")
 os.environ.setdefault("SECRET_KEY", "test_secret_key_for_unit_tests")
 os.environ.setdefault("DB_PATH", ":memory:")
-os.environ.setdefault("CACHE_TTL_SECONDS", "5")
+os.environ["CACHE_TTL_SECONDS"] = "2"  # Force override — do NOT use setdefault
 
 # ── Stub selenium (tests don't need a real Chrome driver) ────────────────────
 if "selenium" not in sys.modules:
