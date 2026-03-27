@@ -42,13 +42,6 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     loop = asyncio.get_event_loop()
 
-    # Start Telethon before run_polling() takes over
-    try:
-        from src.telethon_client import start_telethon
-        loop.run_until_complete(start_telethon())
-    except Exception as e:
-        logger.warning("Telethon startup failed (profile card forwarding disabled): %s", e)
-
     from bot.app import create_app
     app = create_app()
     logger.info("🤖  Korea Visa Bot is running — press Ctrl+C to stop")
