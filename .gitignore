@@ -18,6 +18,7 @@ ENV/
 data/*.db
 data/*.db-wal
 data/*.db-shm
+data/*.session
 data/input_*.xlsx
 data/output/
 data/screenshots/
@@ -44,3 +45,9 @@ dist/
 build/
 *.egg-info/
 *.zip
+
+# coverage
+.coverage
+
+# stray pip files
+=*
