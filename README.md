@@ -1,7 +1,9 @@
 # 🇰🇷 Korea Visa Status Bot
 
 A multilingual Telegram bot that lets **students** check their Korean visa application status via the Diplomatic Office channel, and **admins** perform bulk/single checks for both E-Visa and Diplomatic Office channels — with full Excel import/export support.
-<img width="743" height="545" alt="image" src="https://github.com/user-attachments/assets/a643a1b5-4f9b-4b04-b7ff-7999de87848a" />
+<img width="300" height="200" alt="image" src="https://github.com/user-attachments/assets/a643a1b5-4f9b-4b04-b7ff-7999de87848a" />
+<img width="300" height="200" alt="image" src="https://github.com/user-attachments/assets/78aaea84-996c-46c4-bf39-2b8ed17d6540" />
+
 
 
 ---
